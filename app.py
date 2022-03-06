@@ -271,10 +271,8 @@ def edit_artist_submission(artist_id):
     artist.genres.clear()
     for genre_name in genre_names:
       genre = Genre.query.filter_by(name=genre_name).one_or_none()
-      if not genre:
-        genre = Genre(name=genre)
-        db.session.add(genre)
-      artist.genres.append(genre)
+      if genre:
+        artist.genres.append(genre)
       
     artist.name = form.name.data.strip()
     db.session.commit()
