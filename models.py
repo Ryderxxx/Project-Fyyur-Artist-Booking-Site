@@ -2,18 +2,11 @@
 # Imports
 #----------------------------------------------------------------------------#
 from flask_sqlalchemy import SQLAlchemy
-from flask_moment import Moment
-from flask import Flask
-
 
 #----------------------------------------------------------------------------#
-# App Config.
+# Initialized without explicit app (Flask instance)
 #----------------------------------------------------------------------------#
-
-app = Flask(__name__)
-moment = Moment(app)
-app.config.from_object('config')
-db = SQLAlchemy(app)
+db = SQLAlchemy()
 
 #----------------------------------------------------------------------------#
 # Models.
