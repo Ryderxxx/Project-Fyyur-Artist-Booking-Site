@@ -74,12 +74,8 @@ def venues():
     return redirect(url_for('create_venue_form'))
   data = []
   for i in range(len(venues)):
-    shows_counter = 0
-    current = datetime.now()
-    for show in Show.query.filter_by(venue_id=venues[i].id):
-      if show.start_time > current:
-        shows_counter += 1
-    venue_dict = {'id':venues[i].id, 'name':venues[i].name, 'num_upcoming_shows': shows_counter}
+    num_upcoming_shows = db.session.query(Show).join(Venue).filter(Show.venue_id==Venue.id).filter(Show.start_time>datetime.now()).count()
+    venue_dict = {'id':venues[i].id, 'name':venues[i].name, 'num_upcoming_shows': num_upcoming_shows}
     city_index = find_city(data, venues[i].city)
     if city_index == -1:
       city_dict = {'city': venues[i].city, 'state': venues[i].state, 'venues': [venue_dict]}
@@ -96,15 +92,11 @@ def search_venues():
   # seach for Hop should return "The Musical Hop".
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
   data = []
-  shows_counter = 0
-  current = datetime.now()
   search_term = request.form.get('search_term', type=str)
   for element in Venue.query.filter(Venue.name.ilike('%'+search_term+'%')):
-    for show in Show.query.filter_by(venue_id=element.id):
-      if show.start_time > current:
-        shows_counter += 1
     element = element.__dict__
-    element['num_upcoming_shows'] = shows_counter
+    element['num_upcoming_shows'] = db.session.query(Show).join(Venue).filter(
+        Show.venue_id == element['id']).filter(Show.start_time > datetime.now()).count()
     data.append(element)
   response={"count": len(data), "data": data}
   return render_template('pages/search_venues.html', results=response, search_term=search_term)
@@ -212,15 +204,11 @@ def search_artists():
   # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
   # search for "band" should return "The Wild Sax Band".
   data = []
-  shows_counter = 0
-  current = datetime.now()
   search_term = request.form.get('search_term', type=str)
   for element in Artist.query.filter(Artist.name.ilike('%'+search_term+'%')):
-    for show in Show.query.filter_by(artist_id=element.id):
-      if show.start_time > current:
-        shows_counter += 1
     element = element.__dict__
-    element['num_upcoming_shows'] = shows_counter
+    element['num_upcoming_shows'] = db.session.query(Show).join(Venue).filter(
+        Show.venue_id == element['id']).filter(Show.start_time > datetime.now()).count()
     data.append(element)
   response = {'count': len(data), 'data': data}
   return render_template('pages/search_artists.html', results=response, search_term=search_term)
