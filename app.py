@@ -68,8 +68,11 @@ def find_city(data, city_name):
 def venues():
   # TODO: replace with real venues data. ✔
   #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
-  data = []
   venues = Venue.query.all()
+  if not venues:
+    flash('We don\'t have any venue now, let\'s create one!')
+    return redirect(url_for('create_venue_form'))
+  data = []
   for i in range(len(venues)):
     shows_counter = 0
     current = datetime.now()
@@ -144,7 +147,10 @@ def create_venue_submission():
     form = VenueForm()
     genres = []
     for genre_name in form.genres.data:
-      genres.append(Genre.query.filter_by(name=genre_name).first())
+      genre = Genre.query.filter_by(name=genre_name).first()
+      if not genre:
+        genre = Genre(name=genre_name)
+      genres.append(genre)
     new_venue = Venue(name=form.name.data, 
                       city=form.city.data, 
                       state=form.state.data, 
@@ -195,6 +201,9 @@ def delete_venue(venue_id):
 def artists():
   # TODO: replace with real data returned from querying the database ✔
   data = Artist.query.order_by(Artist.name).all()
+  if not data:
+    flash('We don\'t have any artist now, let\'s create one!')
+    return redirect(url_for('create_artist_form'))
   return render_template('pages/artists.html', artists=data)
 
 @app.route('/artists/search', methods=['POST'])
@@ -351,7 +360,10 @@ def create_artist_submission():
     form = ArtistForm()
     genres = []
     for genre_name in form.genres.data:
-      genres.append(Genre.query.filter_by(name=genre_name).first())
+      genre = Genre.query.filter_by(name=genre_name).first()
+      if not genre:
+        genre = Genre(name=genre_name)
+      genres.append(genre)
     new_artist = Artist(name=form.name.data,
                         city=form.city.data,
                         state=form.state.data,
@@ -360,7 +372,7 @@ def create_artist_submission():
                         image_link=form.image_link.data,
                         website_link=form.website_link.data,
                         facebook_link=form.facebook_link.data,
-                        seeking_talent=form.seeking_venue.data,
+                        seeking_venue=form.seeking_venue.data,
                         seeking_description=form.seeking_description.data)
     db.session.add(new_artist)
     db.session.commit()
@@ -371,7 +383,7 @@ def create_artist_submission():
     print(sys.exc_info())
   # TODO: on unsuccessful db insert, flash an error instead. ✔
   # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
-    flash('An error occurred. Artist' + request.form['name'] + 'could not be listed.')
+    flash('An error occurred. Artist ' + request.form['name'] + ' could not be listed.')
   finally:
     db.session.close()
   return render_template('pages/home.html')
@@ -384,8 +396,13 @@ def create_artist_submission():
 def shows():
   # displays list of shows at /shows
   # TODO: replace with real venues data. ✔
+
+  shows = Show.query.all()
+  if not shows:
+    flash('We don\'t have any show now, let\'s create one!')
+    return redirect(url_for('create_shows'))
   data = []
-  for element in Show.query.all():
+  for element in shows:
     element = element.__dict__
     element['venue_name'] = Venue.query.get(element['venue_id']).name
     element['artist_name'] = Artist.query.get(element['artist_id']).name

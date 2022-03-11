@@ -11,5 +11,5 @@ WTF_CSRF_ENABLED = False
 
 # Connect to the database
 # TODO IMPLEMENT DATABASE URL
-SQLALCHEMY_DATABASE_URI = 'postgresql://apple@localhost:5432/fyyurdb'
+SQLALCHEMY_DATABASE_URI = 'postgresql://apple@localhost:5432/fyyurtest'
 SQLALCHEMY_TRACK_MODIFICATIONS = False

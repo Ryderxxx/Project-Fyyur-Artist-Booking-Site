@@ -1,6 +1,12 @@
 Fyyur
 -----
 
+## Steps to use from Ryder
+1. Modify config.py to connect your empty database.
+2. do 'flask db upgrade' in the project directory.
+3. Now you can run app.py and view the website.
+![DB_Schema](/DB_Schema.jpeg)
+
 ## Introduction
 
 Fyyur is a musical venue and artist booking site that facilitates the discovery and bookings of shows between local performing artists and venues. This site lets you list new artists and venues, discover them, and list shows with artists as a venue owner.
