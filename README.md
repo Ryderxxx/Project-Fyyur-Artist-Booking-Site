@@ -2,9 +2,9 @@ Fyyur
 -----
 
 ## Steps to use from Ryder
-1. Modify config.py to connect your empty database.
-2. do 'flask db upgrade' under the project directory.
-3. Now you can run app.py and view the website.
+1. Modify config.py to connect an empty database, and install all the requirements in requirements.txt.
+2. Execute 'flask db upgrade' in the terminal under the project directory.
+3. Now you can run app.py and view my website.
 
 ## My DataBase Schema
 ![DB_Schema](/DB_Schema.jpeg)
