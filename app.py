@@ -1,13 +1,9 @@
 #----------------------------------------------------------------------------#
 # Imports
 #----------------------------------------------------------------------------#
-from unicodedata import name
-from flask import Flask, jsonify, render_template, request, Response, flash, redirect, url_for, abort
+from flask import Flask, render_template, request, flash, redirect, url_for, abort
 from logging import Formatter, FileHandler
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from sqlalchemy import ForeignKey
-from flask_wtf import FlaskForm
 from flask_moment import Moment
 from datetime import datetime
 from models import *
@@ -114,10 +110,21 @@ def show_venue(venue_id):
     venue = Venue.query.get(venue_id)
     data = venue.__dict__
     data['website'] = data['website_link']
-    genres = []
-    for genre in venue.genres:
-      genres.append(genre.name)
-    data['genres'] = genres
+    past_shows = db.session.query(Show, Artist).join(Artist).filter(
+        Show.venue_id == venue_id).filter(Show.start_time < datetime.now()).all()
+    upcoming_shows = db.session.query(Show, Artist).join(Artist).filter(
+        Show.venue_id == venue_id).filter(Show.start_time > datetime.now()).all()
+    data['past_shows_count'] = len(past_shows)
+    data['upcoming_shows_count'] = len(upcoming_shows)
+    for show in past_shows + upcoming_shows:
+      artist = show[1].__dict__
+      show = show[0].__dict__
+      show['artist_name'] = artist['name']
+      show['artist_image_link'] = artist['image_link']
+      show['start_time'] = show['start_time'].strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    data['past_shows'] = [show[0].__dict__ for show in past_shows]
+    data['upcoming_shows'] = [show[0].__dict__ for show in upcoming_shows]
+    data['genres'] = [genre.name for genre in venue.genres]
   except:
     print(sys.exc_info())
     return abort(404, description="Resource not found")
@@ -226,10 +233,21 @@ def show_artist(artist_id):
     artist = Artist.query.get(artist_id)
     data = artist.__dict__
     data['website'] = data['website_link']
-    genres = []
-    for genre in artist.genres:
-      genres.append(genre.name)
-    data['genres'] = genres
+    past_shows = db.session.query(Show, Venue).join(Venue).filter(
+        Show.artist_id == artist_id).filter(Show.start_time < datetime.now()).all()
+    upcoming_shows = db.session.query(Show, Venue).join(Venue).filter(
+        Show.artist_id == artist_id).filter(Show.start_time > datetime.now()).all()
+    data['past_shows_count'] = len(past_shows)
+    data['upcoming_shows_count'] = len(upcoming_shows)
+    for show in past_shows + upcoming_shows:
+      venue = show[1].__dict__
+      show = show[0].__dict__
+      show['venue_name'] = venue['name']
+      show['venue_image_link'] = venue['image_link']
+      show['start_time'] = show['start_time'].strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    data['past_shows'] = [show[0].__dict__ for show in past_shows]
+    data['upcoming_shows'] = [show[0].__dict__ for show in upcoming_shows]
+    data['genres'] = [genre.name for genre in artist.genres]
   except:
     print(sys.exc_info())
     return abort(404, description="Resource not found")
